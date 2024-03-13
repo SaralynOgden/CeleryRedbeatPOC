@@ -15,7 +15,7 @@ services:
     volumes: ['./api:/api']
   worker:
     build:
-      context: ./celeryQueue
+      context: ./trader
       dockerfile: Dockerfile.dev
     command: celery -A tasks worker -l info -E
     environment:
@@ -23,10 +23,10 @@ services:
       CELERY_RESULT_BACKEND: redis://redis
     depends_on:
       - redis
-    volumes: ['./celeryQueue:/queue']
+    volumes: ['./trader:/queue']
   monitor:
     build:
-      context: ./celeryQueue
+      context: ./trader
       dockerfile: Dockerfile.dev
     ports:
      - "5555:5555"
@@ -37,7 +37,7 @@ services:
     depends_on:
       - redis
       - worker
-    volumes: ['./celeryQueue:/queue']
+    volumes: ['./trader:/queue']
   redis:
     image: redis:alpine
     ports:

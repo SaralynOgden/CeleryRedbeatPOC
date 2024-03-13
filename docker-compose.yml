@@ -12,33 +12,45 @@ services:
       - redis
     volumes: ['./api:/api']
 
-  worker:
+  trader:
     build:
-      context: ./celeryQueue
+      context: ./trader
       dockerfile: Dockerfile
-    command: celery -A tasks worker -l debug -E
+    command: celery -A tasks worker -l info -E
     environment:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
     depends_on:
       - redis
-    volumes: ['./celeryQueue:/queue']
+    volumes: ['./trader:/queue']
+
+  orderer:
+    build:
+      context: ./orderer
+      dockerfile: Dockerfile
+    command: celery -A tasks worker -l info -E -Q orders
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+    depends_on:
+      - redis
+    volumes: ['./orderer:/queue']
 
   beat:
     build:
-      context: ./celeryQueue
+      context: ./trader
       dockerfile: Dockerfile
-    command: celery -A tasks beat -S redbeat.RedBeatScheduler -l debug --max-interval 5
+    command: celery -A tasks beat -S redbeat.RedBeatScheduler -l info --max-interval 5
     environment:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
     depends_on:
       - redis
-    volumes: ['./celeryQueue:/queue']
+    volumes: ['./trader:/queue']
 
   monitor:
     build:
-      context: ./celeryQueue
+      context: ./trader
       dockerfile: Dockerfile
     ports:
      - "5555:5555"
@@ -48,12 +60,11 @@ services:
       CELERY_RESULT_BACKEND: redis://redis:6379/0
     depends_on:
       - redis
-      - worker
-    volumes: ['./celeryQueue:/queue']
+      - trader
+      - orderer
+    volumes: ['./trader:/queue']
 
   redis:
     image: redis:alpine
     ports:
       - "6379:6379"
-
-    # command: celery -A run.celery beat -S redbeat.RedBeatScheduler --loglevel=info

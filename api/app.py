@@ -20,6 +20,19 @@ def add(param1: int, param2: int) -> str:
         app=celery_app
     )
     entry.save()
+    return "Adding!"
+
+@app.route('/addSchedule/<string:symbol_name>')
+def addSchedule(symbol_name: str) -> str:
+    entry = RedBeatSchedulerEntry(
+        symbol_name,
+        'tasks.check_for_trade',
+        30,
+        args=[symbol_name],
+        kwargs={"schedule_name": symbol_name},
+        app=celery_app
+    )
+    entry.save()
     return "Schedule created"
 
 

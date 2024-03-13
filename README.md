@@ -36,7 +36,7 @@ docker-compose down
 
 To change the endpoints, update the code in [api/app.py](api/app.py)
 
-Task changes should happen in [celeryQueue/tasks.py](celeryQueue/tasks.py) 
+Task changes should happen in [trader/tasks.py](trader/tasks.py) 
 
 ---
 

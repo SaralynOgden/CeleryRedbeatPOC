@@ -1,0 +1,6 @@
+celery
+celery-redbeat
+flower
+gevent
+redis
+watchdog
